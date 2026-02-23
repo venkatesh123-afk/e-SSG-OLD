@@ -250,58 +250,56 @@ class _IssueOutingPageState extends State<IssueOutingPage> {
                       itemBuilder: (ctx, index) {
                         final o = filtered[index];
                         return Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: isDark
-                                ? Colors.white.withOpacity(0.05)
+                                ? const Color(0xFF242F48)
                                 : Colors.white,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(15),
                             border: Border.all(
                               color: isDark
-                                  ? Colors.white12
+                                  ? Colors.white.withOpacity(0.1)
                                   : Colors.grey.shade300,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // --- Header Row (Type & Date) ---
+                              // --- Tag & Date Row ---
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  if (o.outingType.trim().isNotEmpty)
+                                  if (o.outingType.isNotEmpty)
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
+                                        horizontal: 10,
+                                        vertical: 5,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: o.outingType == "Home Pass"
-                                            ? Colors.orange.withOpacity(0.2)
-                                            : Colors.blue.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(6),
+                                        color: _getTagColor(
+                                          o.outingType,
+                                        ).withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
                                         o.outingType,
                                         style: TextStyle(
-                                          color: o.outingType == "Home Pass"
-                                              ? Colors.orange
-                                              : Colors.blue,
+                                          color: _getTagColor(o.outingType),
                                           fontWeight: FontWeight.bold,
                                           fontSize: 12,
                                         ),
                                       ),
                                     ),
-                                  if (o.outDate.trim().isNotEmpty ||
-                                      o.outingTime.trim().isNotEmpty)
+                                  if (o.outDate.isNotEmpty ||
+                                      o.outingTime.isNotEmpty)
                                     Text(
                                       "${o.outDate}${o.outDate.isNotEmpty && o.outingTime.isNotEmpty ? " | " : ""}${o.outingTime}",
                                       style: TextStyle(
@@ -314,7 +312,7 @@ class _IssueOutingPageState extends State<IssueOutingPage> {
                                     ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 12),
 
                               // --- Student Name ---
                               Text(
@@ -322,68 +320,66 @@ class _IssueOutingPageState extends State<IssueOutingPage> {
                                 style: TextStyle(
                                   color: isDark ? Colors.white : Colors.black87,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                                  fontSize: 15,
+                                  letterSpacing: 0.5,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 10),
 
                               // --- Purpose ---
-                              if (o.purpose.trim().isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.info_outline,
-                                      size: 14,
-                                      color: isDark
-                                          ? Colors.white54
-                                          : Colors.black54,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Expanded(
-                                      child: Text(
-                                        "Purpose: ${o.purpose}", // purpose
-                                        style: TextStyle(
-                                          color: isDark
-                                              ? Colors.white70
-                                              : Colors.black87,
-                                          fontSize: 13,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+                              if (o.purpose.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 6),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.info_outline,
+                                        size: 16,
+                                        color: isDark
+                                            ? Colors.white54
+                                            : Colors.black54,
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          "Purpose: ${o.purpose}",
+                                          style: TextStyle(
+                                            color: isDark
+                                                ? Colors.white70
+                                                : Colors.black87,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ],
 
-                              // --- Permission By ---
-                              if (o.permission.trim().isNotEmpty) ...[
-                                const SizedBox(height: 4),
+                              // --- Approved By ---
+                              if (o.permission.isNotEmpty)
                                 Row(
                                   children: [
                                     Icon(
                                       Icons.person_outline,
-                                      size: 14,
+                                      size: 16,
                                       color: isDark
                                           ? Colors.white54
                                           : Colors.black54,
                                     ),
-                                    const SizedBox(width: 4),
+                                    const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        "Approved By: ${o.permission}", // permission
+                                        "Approved By: ${o.permission}",
                                         style: TextStyle(
                                           color: isDark
                                               ? Colors.white70
                                               : Colors.black87,
-                                          fontSize: 13,
+                                          fontSize: 14,
                                         ),
-                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
                                 ),
-                              ],
                             ],
                           ),
                         );
@@ -1432,6 +1428,12 @@ class _IssueOutingPageState extends State<IssueOutingPage> {
   }
 
   // ---------------- NEON TIME PICKER ----------------
+  Color _getTagColor(String type) {
+    if (type.contains("Home")) return Colors.blue;
+    if (type.contains("Outing")) return const Color(0xFF3498DB);
+    return Colors.teal;
+  }
+
   Widget _neonTimePicker(
     BuildContext context, {
     required String label,

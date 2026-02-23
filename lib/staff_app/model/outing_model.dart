@@ -32,9 +32,22 @@ class OutingModel {
       studentName:
           (json['student_name'] ?? json['sname'] ?? json['studentname'] ?? '')
               .toString(),
-      outingType: (json['outingtype'] ?? json['outing_type'] ?? '').toString(),
-      outDate: (json['out_date'] ?? json['date'] ?? '').toString(),
-      outingTime: (json['outing_time'] ?? json['time'] ?? '').toString(),
+      outingType:
+          (json['passtype'] ??
+                  json['pass_type'] ??
+                  json['outingtype'] ??
+                  json['outing_type'] ??
+                  '')
+              .toString(),
+      outDate: (json['outing_date'] ?? json['out_date'] ?? json['date'] ?? '')
+          .toString(),
+      outingTime:
+          (json['outtime'] ??
+                  json['out_time'] ??
+                  json['outing_time'] ??
+                  json['time'] ??
+                  '')
+              .toString(),
       purpose: (json['purpose'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
       permission: (json['permission'] ?? '').toString(),
