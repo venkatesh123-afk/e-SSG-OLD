@@ -277,45 +277,48 @@ class _IssueOutingPageState extends State<IssueOutingPage> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: o.outingType == "Home Pass"
-                                          ? Colors.orange.withOpacity(0.2)
-                                          : Colors.blue.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      o.outingType,
-                                      style: TextStyle(
+                                  if (o.outingType.trim().isNotEmpty)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
                                         color: o.outingType == "Home Pass"
-                                            ? Colors.orange
-                                            : Colors.blue,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
+                                            ? Colors.orange.withOpacity(0.2)
+                                            : Colors.blue.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        o.outingType,
+                                        style: TextStyle(
+                                          color: o.outingType == "Home Pass"
+                                              ? Colors.orange
+                                              : Colors.blue,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Text(
-                                    "${o.outDate} | ${o.outingTime}",
-                                    style: TextStyle(
-                                      color: isDark
-                                          ? Colors.white70
-                                          : Colors.black54,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
+                                  if (o.outDate.trim().isNotEmpty ||
+                                      o.outingTime.trim().isNotEmpty)
+                                    Text(
+                                      "${o.outDate}${o.outDate.isNotEmpty && o.outingTime.isNotEmpty ? " | " : ""}${o.outingTime}",
+                                      style: TextStyle(
+                                        color: isDark
+                                            ? Colors.white70
+                                            : Colors.black54,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
-                                  ),
                                 ],
                               ),
                               const SizedBox(height: 8),
 
                               // --- Student Name ---
                               Text(
-                                o.studentName,
+                                o.studentName.toUpperCase(),
                                 style: TextStyle(
                                   color: isDark ? Colors.white : Colors.black87,
                                   fontWeight: FontWeight.bold,
@@ -325,57 +328,62 @@ class _IssueOutingPageState extends State<IssueOutingPage> {
                               const SizedBox(height: 4),
 
                               // --- Purpose ---
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.info_outline,
-                                    size: 14,
-                                    color: isDark
-                                        ? Colors.white54
-                                        : Colors.black54,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Expanded(
-                                    child: Text(
-                                      "Purpose: ${o.purpose}", // purpose
-                                      style: TextStyle(
-                                        color: isDark
-                                            ? Colors.white70
-                                            : Colors.black87,
-                                        fontSize: 13,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
+                              if (o.purpose.trim().isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.info_outline,
+                                      size: 14,
+                                      color: isDark
+                                          ? Colors.white54
+                                          : Colors.black54,
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        "Purpose: ${o.purpose}", // purpose
+                                        style: TextStyle(
+                                          color: isDark
+                                              ? Colors.white70
+                                              : Colors.black87,
+                                          fontSize: 13,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
 
                               // --- Permission By ---
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.person_outline,
-                                    size: 14,
-                                    color: isDark
-                                        ? Colors.white54
-                                        : Colors.black54,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Expanded(
-                                    child: Text(
-                                      "Approved By: ${o.permission}", // permission
-                                      style: TextStyle(
-                                        color: isDark
-                                            ? Colors.white70
-                                            : Colors.black87,
-                                        fontSize: 13,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
+                              if (o.permission.trim().isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.person_outline,
+                                      size: 14,
+                                      color: isDark
+                                          ? Colors.white54
+                                          : Colors.black54,
                                     ),
-                                  ),
-                                ],
-                              ),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        "Approved By: ${o.permission}", // permission
+                                        style: TextStyle(
+                                          color: isDark
+                                              ? Colors.white70
+                                              : Colors.black87,
+                                          fontSize: 13,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ],
                           ),
                         );

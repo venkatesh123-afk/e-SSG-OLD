@@ -351,7 +351,7 @@ class ApiService {
         ..fields["id"] = outingId.toString()
         ..files.add(
           await http.MultipartFile.fromPath(
-            "pic", // field name expected by backend
+            "photo", // changed from "pic" as per Postman screenshot
             imageFile.path,
           ),
         );

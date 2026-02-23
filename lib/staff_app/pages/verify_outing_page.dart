@@ -76,15 +76,7 @@ class _VerifyOutingPageState extends State<VerifyOutingPage> {
           _details = data; // Fallback
         }
 
-        // 🔥 Auto-enable approve if photo exists
-        if ((_details?['pic'] != null &&
-                _details!['pic'].toString().isNotEmpty) ||
-            (_details?['letter_photo'] != null &&
-                _details!['letter_photo'].toString().isNotEmpty) ||
-            (_details?['photo'] != null &&
-                _details!['photo'].toString().isNotEmpty)) {
-          _photoUploaded = true;
-        }
+        // Photo must be uploaded in current session to enable approve
 
         _isLoadingDetails = false;
       });
@@ -327,8 +319,14 @@ class _VerifyOutingPageState extends State<VerifyOutingPage> {
           ),
           const SizedBox(height: 16),
           _buildFullWidthButton(
-            label: _isApproving ? "Approving..." : "Approve",
-            color: _isPhotoAvailable ? const Color(0xFF2EBD85) : Colors.grey,
+            label: _isApproving
+                ? "Approving..."
+                : _isUploadingPhoto
+                ? "Uploading Photo..."
+                : "Approve",
+            color: _isPhotoAvailable && !_isUploadingPhoto
+                ? const Color(0xFF2EBD85)
+                : Colors.grey,
             onTap: () async {
               if (_isApproving || _isUploadingPhoto) return;
               if (!_isPhotoAvailable) {
