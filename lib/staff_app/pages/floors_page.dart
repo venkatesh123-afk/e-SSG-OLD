@@ -7,6 +7,7 @@ import '../controllers/floor_controller.dart';
 import '../model/floor_model.dart';
 import '../widgets/search_field.dart';
 import '../widgets/skeleton.dart';
+import 'floor_students_page.dart';
 
 class FloorsManagementPage extends StatefulWidget {
   const FloorsManagementPage({super.key});
@@ -364,7 +365,6 @@ class _FloorsManagementPageState extends State<FloorsManagementPage> {
                 icon: const Icon(Icons.edit, color: Colors.orange, size: 22),
                 onPressed: () => _showEditDialog(context, floor),
               ),
-              const SizedBox(height: 12),
               IconButton(
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -374,6 +374,24 @@ class _FloorsManagementPageState extends State<FloorsManagementPage> {
                   size: 22,
                 ),
                 onPressed: () => _showDeleteDialog(context, floor),
+              ),
+              const SizedBox(height: 12),
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: const Icon(
+                  Icons.people_outline,
+                  color: Color(0xFF00FFCC),
+                  size: 24,
+                ),
+                onPressed: () {
+                  Get.to(
+                    () => FloorStudentsPage(
+                      floorId: floor.id,
+                      floorName: floor.floorName,
+                    ),
+                  );
+                },
               ),
             ],
           ),

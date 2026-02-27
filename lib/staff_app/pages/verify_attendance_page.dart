@@ -406,30 +406,67 @@ class _VerifyAttendancePageState extends State<VerifyAttendancePage>
                   ],
                 ),
                 const SizedBox(height: 20),
-                Row(
+                const SizedBox(height: 20),
+                // 📊 STATS GRID
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 16,
                   children: [
-                    Expanded(
-                      child: _statItem(
-                        "TOTAL",
-                        record.total,
-                        Colors.blue,
-                        isDark,
+                    _statItem("TOTAL", record.total, Colors.blue, isDark),
+                    _statItem("PRESENT", record.present, Colors.green, isDark),
+                    _statItem("ABSENT", record.absent, Colors.red, isDark),
+                    _statItem(
+                      "OUTING",
+                      record.totalOuting,
+                      Colors.orange,
+                      isDark,
+                    ),
+                    _statItem(
+                      "HOME PASS",
+                      record.totalHomePass,
+                      Colors.purple,
+                      isDark,
+                    ),
+                    _statItem(
+                      "SELF OUTING",
+                      record.totalSelfOuting,
+                      Colors.teal,
+                      isDark,
+                    ),
+                    _statItem(
+                      "SELF HOME",
+                      record.totalSelfHome,
+                      Colors.indigo,
+                      isDark,
+                    ),
+                    _statItem(
+                      "MISSING",
+                      record.totalMissing,
+                      Colors.redAccent,
+                      isDark,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Divider(color: isDark ? Colors.white10 : Colors.grey.shade100),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "TOTAL MARKED",
+                      style: TextStyle(
+                        color: isDark ? Colors.white54 : Colors.grey.shade600,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Expanded(
-                      child: _statItem(
-                        "PRESENT",
-                        record.present,
-                        Colors.green,
-                        isDark,
-                      ),
-                    ),
-                    Expanded(
-                      child: _statItem(
-                        "ABSENT",
-                        record.absent,
-                        Colors.red,
-                        isDark,
+                    Text(
+                      record.totalMarked.toString(),
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black87,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
@@ -466,28 +503,32 @@ class _VerifyAttendancePageState extends State<VerifyAttendancePage>
   }
 
   Widget _statItem(String label, int value, Color color, bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: isDark ? Colors.white54 : Colors.grey.shade600,
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
+    return SizedBox(
+      width: 80, // Fixed width for consistent grid look in Wrap
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: isDark ? Colors.white54 : Colors.grey.shade600,
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          value.toString(),
-          style: TextStyle(
-            color: color,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+          const SizedBox(height: 6),
+          Text(
+            value.toString(),
+            style: TextStyle(
+              color: color,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

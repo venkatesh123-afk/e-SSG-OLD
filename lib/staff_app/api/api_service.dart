@@ -733,6 +733,30 @@ class ApiService {
     return []; // 👈 empty list is valid (same as Postman)
   }
 
+  static Future<List<Map<String, dynamic>>> getVerifyAttendanceDetailed({
+    required int branchId,
+    required int shiftId,
+  }) async {
+    final res = await getRequest(
+      ApiCollection.getVerifyAttendanceDetailed(
+        branchId: branchId,
+        shiftId: shiftId,
+      ),
+    );
+
+    debugPrint("VERIFY ATTENDANCE DETAILED RESPONSE: $res");
+
+    final List? data = res["indexdata"] ?? res["data"];
+    if ((res["success"] == true ||
+            res["success"] == "true" ||
+            res["success"] == 1) &&
+        data != null) {
+      return List<Map<String, dynamic>>.from(data);
+    }
+
+    return [];
+  }
+
   static Future<dynamic> storeVerifyAttendance({
     required List<int> branchIds,
     required List<int> groupIds,
@@ -1211,5 +1235,23 @@ class ApiService {
     if (!isSuccess) {
       throw Exception(decoded["message"] ?? "Failed to save hostel building");
     }
+  }
+
+  // ================= GET STUDENTS BY FLOOR =================
+  static Future<List<Map<String, dynamic>>> getStudentsByFloor(
+    int floorId,
+  ) async {
+    final res = await getRequest(ApiCollection.getStudentsByFloor(floorId));
+
+    debugPrint("STUDENTS BY FLOOR RESPONSE: $res");
+
+    if ((res["success"] == true ||
+            res["success"] == "true" ||
+            res["success"] == 1) &&
+        res["indexdata"] != null) {
+      return List<Map<String, dynamic>>.from(res["indexdata"]);
+    }
+
+    return [];
   }
 }

@@ -191,6 +191,13 @@ class ApiCollection {
     return "/verify_attendance?branch=$branchId&shift=$shiftId";
   }
 
+  static String getVerifyAttendanceDetailed({
+    required int branchId,
+    required int shiftId,
+  }) {
+    return "/getverify_attendance?branch_id=$branchId&shift=$shiftId";
+  }
+
   static String verifyStoreAttendance({
     required List<int> branchIds,
     required List<int> groupIds,
@@ -245,4 +252,7 @@ class ApiCollection {
 
   static String getNonHostelStudents(int branchId) =>
       "/getnonhostelstudents/$branchId";
+
+  static String getStudentsByFloor(int floorId) =>
+      "/getstudentsbyfloor/$floorId";
 }
