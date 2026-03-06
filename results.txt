@@ -1,0 +1,13 @@
+Analyzing pro_dashboard_page.dart...                            
+
+  error - The argument type 'ProYoyModel?' can't be assigned to the parameter type 'ProYoyModel'.  - lib\staff_app\pages\pro_dashboard_page.dart:213:21 - argument_type_not_assignable
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\staff_app\pages\pro_dashboard_page.dart:307:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\staff_app\pages\pro_dashboard_page.dart:394:49 - deprecated_member_use
+  error - Expected an identifier - lib\staff_app\pages\pro_dashboard_page.dart:433:9 - missing_identifier
+  error - Expected to find ']' - lib\staff_app\pages\pro_dashboard_page.dart:433:9 - expected_token
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\staff_app\pages\pro_dashboard_page.dart:562:58 - deprecated_member_use
+  error - Expected to find ')' - lib\staff_app\pages\pro_dashboard_page.dart:601:6 - expected_token
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\staff_app\pages\pro_dashboard_page.dart:722:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\staff_app\pages\pro_dashboard_page.dart:796:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\staff_app\pages\pro_dashboard_page.dart:835:41 - deprecated_member_use
+

@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:student_app/staff_app/pages/dashboard_page.dart';
 import 'package:student_app/staff_app/pages/login_page.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:student_app/home/home_page.dart';
 import 'package:student_app/staff_app/pages/non_hostel_page.dart';
 import 'package:student_app/staff_app/pages/verify_attendance_page.dart';
 
@@ -13,9 +12,6 @@ import 'package:student_app/staff_app/controllers/auth_controller.dart';
 
 // Staff Theme
 import 'package:student_app/staff_app/theme/app_theme.dart';
-
-// Staff Storage
-import 'package:student_app/staff_app/utils/get_storage.dart';
 
 // Staff Pages
 import 'package:student_app/staff_app/pages/profile_page.dart';
@@ -38,6 +34,9 @@ import 'package:student_app/staff_app/pages/fee_head_page.dart';
 import 'package:student_app/staff_app/pages/assign_students_page.dart';
 import 'package:student_app/staff_app/pages/hostel_list_page.dart';
 import 'package:student_app/staff_app/pages/add_hostel_attendance_page.dart';
+import 'package:student_app/staff_app/pages/splash_page.dart';
+import 'package:student_app/staff_app/pages/pro_dashboard_page.dart';
+import 'package:student_app/student_app/dashboard_page.dart' as student;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,11 +46,10 @@ void main() async {
   Get.put(ThemeController(), permanent: true);
 
   // 🔐 AuthController MUST NOT be permanent (multi-user safe) - Staff App
-  Get.lazyPut<AuthController>(() => AuthController());
+  Get.lazyPut<AuthController>(() => AuthController(), fenix: true);
 
-  // 🔐 Check Staff Login Status
-  final bool isStaffLoggedIn = AppStorage.isLoggedIn();
-  final String initialRoute = isStaffLoggedIn ? '/dashboard' : '/home';
+  // 🔐 Initial Route is now Splash to show animation
+  const String initialRoute = '/splash';
 
   runApp(SsJcApp(initialRoute: initialRoute));
 }
@@ -68,7 +66,7 @@ class SsJcApp extends StatelessWidget {
     return Obx(
       () => GetMaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'SSJC',
+        title: 'e-SSG',
 
         // 🌗 THEME (Staff App Theme)
         theme: AppTheme.lightTheme,
@@ -81,14 +79,10 @@ class SsJcApp extends StatelessWidget {
         initialRoute: initialRoute,
 
         getPages: [
-          // 🏠 HOME / ROLE SELECTION
-          GetPage(name: '/', page: () => const HomePage()),
-          GetPage(name: '/home', page: () => const HomePage()),
-
           // 🔑 AUTH FLOW
           // Note: '/splash' in Staff App is Staff Splash.
           // Since we start with HomePage (Role), we might not use '/splash' as initial route.
-          //  GetPage(name: '/splash', page: () => const SplashPage()),
+          GetPage(name: '/splash', page: () => const SplashPage()),
           GetPage(name: '/login', page: () => const LoginPage()),
           GetPage(name: '/dashboard', page: () => const HomeDashboardPage()),
           GetPage(name: '/profile', page: () => const ProfilePage()),
@@ -167,6 +161,11 @@ class SsJcApp extends StatelessWidget {
           GetPage(
             name: '/assignStudents',
             page: () => const AssignStudentsPage(students: []),
+          ),
+          GetPage(name: '/proDashboard', page: () => const ProAdmissionPage()),
+          GetPage(
+            name: '/studentDashboard',
+            page: () => const student.DashboardPage(),
           ),
         ],
       ),

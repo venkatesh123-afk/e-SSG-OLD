@@ -297,7 +297,9 @@ class _IssueOutingPageState extends State<IssueOutingPage> {
                                           fontSize: 12,
                                         ),
                                       ),
-                                    ),
+                                    )
+                                  else
+                                    const SizedBox.shrink(),
                                   if (o.outDate.isNotEmpty ||
                                       o.outingTime.isNotEmpty)
                                     Text(

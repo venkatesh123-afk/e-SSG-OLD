@@ -47,11 +47,12 @@ dependencies:
   url_launcher: ^6.3.2
   collection: ^1.19.1
   shimmer: ^3.0.0
+  flutter_native_splash: ^2.4.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.14.4   
+  flutter_launcher_icons: ^0.14.4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -73,18 +74,23 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/ssjc.jpg
-    - assets/logo.png
-    - assets/icon/ssjc.jpg
+    - assets/icon/SSG.jpeg
     - assets/saraswati1.jpg
-    - assets/ssjc.jpg
     - assets/girl.jpg
     - assets/QRcode.svg
+    - assets/splash_screen.gif
+    - assets/icon/playstore.png
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/icon/ssjc.jpg"
+  image_path: "assets/icon/playstore.png"
   min_sdk_android: 21
+
+flutter_native_splash:
+  color: "#7B6DFE"
+  android_12:
+    color: "#7B6DFE"
+  fullscreen: true
 
   
 

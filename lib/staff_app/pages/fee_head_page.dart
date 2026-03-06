@@ -28,337 +28,265 @@ class _FeeHeadPageState extends State<FeeHeadPage> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryPurple = Color(0xFF7E49FF);
-    const lavenderBg = Color(0xFFF1EEFF);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          // ================= CUSTOM HEADER =================
-          Container(
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 10,
-              bottom: 25,
-              left: 20,
-              right: 20,
-            ),
-            decoration: const BoxDecoration(
-              color: primaryPurple,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
-              ),
-            ),
-            child: Row(
-              children: [
-                IconButton(
-                  onPressed: () => Get.back(),
-                  icon: const Icon(
-                    Icons.description_rounded,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  "Fee Heads",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+      extendBodyBehindAppBar: true,
+
+      // ================= APP BAR =================
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : Colors.black,
           ),
-
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20),
-
-                  // ================= BRANCH SELECTOR =================
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Branch",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Obx(
-                          () => Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(15),
-                              border: Border.all(color: Colors.black12),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 4,
-                            ),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                value: selectedBranch,
-                                dropdownColor: Colors.white,
-                                hint: const Text(
-                                  "Select Branch",
-                                  style: TextStyle(color: Colors.black54),
-                                ),
-                                isExpanded: true,
-                                icon: const Icon(
-                                  Icons.keyboard_arrow_down,
-                                  color: Colors.black,
-                                ),
-                                items: branchCtrl.branches
-                                    .map<DropdownMenuItem<String>>(
-                                      (b) => DropdownMenuItem(
-                                        value: b.branchName,
-                                        child: Text(
-                                          b.branchName,
-                                          style: const TextStyle(
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                                onChanged: (v) {
-                                  if (v == null) return;
-                                  final branch = branchCtrl.branches.firstWhere(
-                                    (b) => b.branchName == v,
-                                  );
-
-                                  setState(() {
-                                    selectedBranch = v;
-                                    selectedBranchId = branch.id;
-                                  });
-
-                                  searchCtrl.clear();
-                                  feeCtrl.loadFeeHeads(branch.id);
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  // ================= MAIN CONTENT AREA =================
-                  Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.symmetric(horizontal: 15),
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: lavenderBg,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Column(
-                      children: [
-                        // --- SEARCH BAR ---
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(
-                              color: primaryPurple.withOpacity(0.8),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: TextField(
-                            controller: searchCtrl,
-                            onChanged: (v) => feeCtrl.searchFeeHead(v),
-                            decoration: const InputDecoration(
-                              hintText: "Search Student or ID",
-                              hintStyle: TextStyle(color: Colors.black38),
-                              prefixIcon: Icon(
-                                Icons.search,
-                                color: Colors.black54,
-                                size: 22,
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: 14,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // --- FEE HEAD LIST ---
-                        Obx(() {
-                          if (feeCtrl.isLoading.value) {
-                            return const SkeletonList(itemCount: 3);
-                          }
-
-                          if (feeCtrl.feeHeads.isEmpty) {
-                            return const Center(
-                              child: Text("No Fee Heads Found"),
-                            );
-                          }
-
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: feeCtrl.feeHeads.length,
-                            itemBuilder: (context, index) {
-                              final fee = feeCtrl.feeHeads[index];
-                              return _buildFeeItem(fee, context);
-                            },
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: _buildBottomNav(),
-    );
-  }
-
-  Widget _buildFeeItem(fee, BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  fee.feeHead,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const Text(
-                  "Fee",
-                  style: TextStyle(fontSize: 14, color: Colors.black45),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF8E7CFF), Color(0xFFD3ADFF)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ElevatedButton(
-              onPressed: () {
-                Get.snackbar("Collect Fee", "Collecting ${fee.feeHead}");
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 0,
-                ),
-                minimumSize: const Size(90, 45),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                "Collect",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomNav() {
-    const primaryPurple = Color(0xFF7E49FF);
-    return Container(
-      decoration: const BoxDecoration(
-        color: primaryPurple,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
+          onPressed: () => Get.back(),
         ),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _navItem(Icons.home, "Home", false),
-          _navItem(Icons.assessment_rounded, "Attendance", false),
-          _navItem(Icons.description_rounded, "Fees", true),
-          _navItem(Icons.person, "Profile", false),
-        ],
-      ),
-    );
-  }
-
-  Widget _navItem(IconData icon, String label, bool isActive) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        isActive
-            ? Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: Colors.white),
-              )
-            : Icon(icon, color: Colors.white70),
-        const SizedBox(height: 4),
-        Text(
-          label,
+        title: Text(
+          "Fee Heads",
           style: TextStyle(
-            color: isActive ? Colors.white : Colors.white70,
-            fontSize: 12,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+            color: isDark ? Colors.white : Colors.black,
+            fontWeight: FontWeight.bold,
           ),
         ),
-      ],
+      ),
+
+      // ================= BODY =================
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: isDark
+              ? const LinearGradient(
+                  colors: [
+                    Color(0xFF1a1a2e),
+                    Color(0xFF16213e),
+                    Color(0xFF0f3460),
+                    Color(0xFF533483),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Theme.of(context).scaffoldBackgroundColor,
+                    Theme.of(context).colorScheme.surface,
+                  ],
+                ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 16),
+
+              /// -------- BRANCH DROPDOWN --------
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Obx(
+                  () => DropdownButtonFormField<String>(
+                    initialValue: selectedBranch,
+                    dropdownColor: isDark
+                        ? const Color(0xFF1a1a2e)
+                        : Colors.white,
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: isDark
+                          ? Colors.white.withOpacity(0.12)
+                          : Theme.of(context).cardColor,
+                      hintText: "Select Branch",
+                      hintStyle: TextStyle(
+                        color: isDark ? Colors.white60 : Colors.black54,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    items: branchCtrl.branches
+                        .map<DropdownMenuItem<String>>(
+                          (b) => DropdownMenuItem(
+                            value: b.branchName,
+                            child: Text(b.branchName),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) {
+                      final branch = branchCtrl.branches.firstWhere(
+                        (b) => b.branchName == v,
+                      );
+
+                      setState(() {
+                        selectedBranch = v;
+                        selectedBranchId = branch.id;
+                      });
+
+                      searchCtrl.clear(); // ✅ clear old search
+                      feeCtrl.loadFeeHeads(branch.id);
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              // ================= SEARCH BAR =================
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.white.withOpacity(0.12)
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(
+                      color: isDark ? Colors.white24 : const Color(0xFF9E9E9E),
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.search,
+                        color: isDark ? Colors.cyanAccent : Colors.black54,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: searchCtrl,
+                          onChanged: (v) {
+                            feeCtrl.searchFeeHead(v); // 🔥 SEARCH CONNECTED
+                          },
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: "Search fee",
+                            hintStyle: TextStyle(
+                              color: isDark ? Colors.white60 : Colors.black54,
+                            ),
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              /// -------- FEE HEAD LIST --------
+              Expanded(
+                child: Obx(() {
+                  if (feeCtrl.isLoading.value) {
+                    return const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: SkeletonList(itemCount: 5),
+                    );
+                  }
+
+                  if (feeCtrl.feeHeads.isEmpty) {
+                    return Center(
+                      child: Text(
+                        "No Fee Heads Found",
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black54,
+                        ),
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: feeCtrl.feeHeads.length,
+                    itemBuilder: (context, index) {
+                      final fee = feeCtrl.feeHeads[index];
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          gradient: isDark
+                              ? const LinearGradient(
+                                  colors: [
+                                    Color(0xFF0f3460),
+                                    Color(0xFF533483),
+                                  ],
+                                )
+                              : LinearGradient(
+                                  colors: [
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.primary.withOpacity(0.08),
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.secondary.withOpacity(0.08),
+                                  ],
+                                ),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.white24
+                                : Theme.of(context).dividerColor,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  fee.feeHead,
+                                  style: TextStyle(
+                                    color: isDark ? Colors.white : Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  fee.feeGroup,
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? Colors.white70
+                                        : Colors.black54,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Get.snackbar(
+                                  "Collect Fee",
+                                  "Collecting ${fee.feeHead}",
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isDark
+                                    ? Colors.cyanAccent
+                                    : Theme.of(context).primaryColor,
+                                foregroundColor: isDark
+                                    ? Colors.black
+                                    : Colors.white,
+                              ),
+                              child: const Text("Collect"),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                }),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

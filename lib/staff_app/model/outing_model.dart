@@ -28,30 +28,41 @@ class OutingModel {
       id: json['id'] is int
           ? json['id']
           : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
-      admno: json['admno']?.toString() ?? '',
+      admno: (json['admno'] ?? json['adm_no'] ?? '').toString(),
       studentName:
-          (json['student_name'] ?? json['sname'] ?? json['studentname'] ?? '')
+          (json['student_name'] ??
+                  json['sname'] ??
+                  json['studentname'] ??
+                  json['name'] ??
+                  '')
               .toString(),
       outingType:
           (json['passtype'] ??
                   json['pass_type'] ??
                   json['outingtype'] ??
                   json['outing_type'] ??
+                  json['type'] ??
                   '')
               .toString(),
-      outDate: (json['outing_date'] ?? json['out_date'] ?? json['date'] ?? '')
-          .toString(),
+      outDate:
+          (json['outing_date'] ??
+                  json['out_date'] ??
+                  json['outdate'] ??
+                  json['date'] ??
+                  '')
+              .toString(),
       outingTime:
           (json['outtime'] ??
+                  json['out_time'] ??
                   json['out_time'] ??
                   json['outing_time'] ??
                   json['time'] ??
                   '')
               .toString(),
-      purpose: (json['purpose'] ?? '').toString(),
-      status: (json['status'] ?? '').toString(),
-      permission: (json['permission'] ?? '').toString(),
-      branch: (json['branch'] ?? '').toString(),
+      purpose: (json['purpose'] ?? json['outpurpuse'] ?? '').toString(),
+      status: (json['status'] ?? json['at_status'] ?? '').toString(),
+      permission: (json['permission'] ?? json['approved_by'] ?? '').toString(),
+      branch: (json['branch'] ?? json['branch_name'] ?? '').toString(),
     );
   }
 }

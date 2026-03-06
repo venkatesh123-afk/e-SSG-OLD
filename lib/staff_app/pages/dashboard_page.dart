@@ -96,7 +96,7 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
           // LOGO
           const CircleAvatar(
             radius: 18,
-            backgroundImage: AssetImage("assets/ssjc.jpg"),
+            backgroundImage: AssetImage("assets/icon/SSG.jpeg"),
           ),
 
           const SizedBox(width: 10),
@@ -809,8 +809,47 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
               ),
               child: Obx(() {
                 final p = profileCtrl.profile.value;
+                final isLoading = profileCtrl.isLoading.value;
+
+                // Only show spinner if we have NO data AND it's currently loading
+                if (p == null && isLoading) {
+                  return const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(color: Colors.white70),
+                        SizedBox(height: 10),
+                        Text(
+                          "Loading profile...",
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                // If no data and not loading (fetch failed with no cache)
                 if (p == null) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.white70),
+                        const SizedBox(height: 8),
+                        const Text(
+                          "Profile load failed",
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
+                        TextButton(
+                          onPressed: profileCtrl.fetchProfile,
+                          child: const Text(
+                            "Retry",
+                            style: TextStyle(color: Colors.white, fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 }
 
                 final avatar = p.avatar;
@@ -820,21 +859,35 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      radius: 35,
-                      backgroundColor: Theme.of(context).cardColor,
-                      backgroundImage: hasValidAvatar
-                          ? NetworkImage(
-                              "https://dev.srisaraswathigroups.in/uploads/$avatar",
-                            )
-                          : null,
-                      child: !hasValidAvatar
-                          ? const Icon(Icons.person, size: 40)
-                          : null,
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CircleAvatar(
+                          radius: 35,
+                          backgroundColor: Theme.of(context).cardColor,
+                          backgroundImage: hasValidAvatar
+                              ? NetworkImage(
+                                  "https://dev.srisaraswathigroups.in/uploads/$avatar",
+                                )
+                              : null,
+                          child: !hasValidAvatar
+                              ? const Icon(Icons.person, size: 40)
+                              : null,
+                        ),
+                        if (isLoading)
+                          const SizedBox(
+                            width: 70,
+                            height: 70,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white70,
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      p.name,
+                      p.name.isEmpty ? "User" : p.name,
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -843,7 +896,7 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
                       ),
                     ),
                     Text(
-                      p.email,
+                      p.email.isEmpty ? "No email provided" : p.email,
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -852,6 +905,16 @@ class _HomeDashboardPageState extends State<HomeDashboardPage> {
                   ],
                 );
               }),
+            ),
+
+            _drawerItem(
+              icon: Icons.dashboard_customize_outlined,
+              title: "Pro Dashboard",
+              iconColor: Colors.deepPurpleAccent,
+              onTap: () {
+                Get.back(); // Close drawer
+                Get.toNamed('/proDashboard');
+              },
             ),
 
             _drawerItem(

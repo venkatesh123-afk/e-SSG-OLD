@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../controllers/hostel_controller.dart';
 import '../controllers/branch_controller.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/success_dialog.dart';
 
 class AddHostelAttendancePage extends StatefulWidget {
   final String? branch;
@@ -162,24 +163,49 @@ class _AddHostelAttendancePageState extends State<AddHostelAttendancePage> {
     );
 
     if (success) {
-      Get.snackbar(
-        'Success',
-        'Attendance submitted successfully',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+      final int total = hostelCtrl.roomStudents.length;
+      final int present = attendanceStatus.values
+          .where((s) => s == 'Present')
+          .length;
 
-      // Refresh summary to reflect new numbers and navigate back
-      await hostelCtrl.loadRoomAttendanceSummary(
-        branch: branchId,
-        date: selectedDate,
-        hostel: hostelId,
-        floor: floorId,
-        room: roomId,
-      );
+      final Map<String, int> extraStats = {
+        'Missing': attendanceStatus.values.where((s) => s == 'Missing').length,
+        'Outing': attendanceStatus.values.where((s) => s == 'Outing').length,
+        'Home Pass': attendanceStatus.values
+            .where((s) => s == 'Home Pass')
+            .length,
+        'Self Outing': attendanceStatus.values
+            .where((s) => s == 'Self Outing')
+            .length,
+        'Self Home': attendanceStatus.values
+            .where((s) => s == 'Self Home')
+            .length,
+      };
 
-      // Wait a bit for snackbar to be seen or just go back
-      Get.back();
+      Get.dialog(
+        SuccessDialog(
+          title: "Success",
+          message: "Attendance has been submitted successfully!",
+          total: total,
+          present: present,
+          extraStats: extraStats,
+          onConfirm: () {
+            // Close both dialog and add page to return to Summary List
+            Get.close(2);
+
+            // Refresh summary for the whole floor in background
+            // Use the floor name (widget.floor) for the summary API
+            hostelCtrl.loadRoomAttendanceSummary(
+              branch: branchId,
+              date: selectedDate,
+              hostel: hostelId,
+              floor: widget.floor ?? hostelCtrl.activeFloor.value,
+              room: 'All',
+            );
+          },
+        ),
+        barrierDismissible: false,
+      );
     }
   }
 

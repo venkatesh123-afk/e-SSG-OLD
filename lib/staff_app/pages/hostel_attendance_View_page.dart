@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:student_app/staff_app/controllers/hostel_controller.dart';
 import '../controllers/branch_controller.dart';
+import '../widgets/selection_bottom_sheet.dart';
 import '../widgets/skeleton.dart';
 
 import 'hostel_attendance_status_page.dart';
@@ -123,16 +124,31 @@ class _HostelAttendanceFilterPageState
                           items: branchCtrl.branches
                               .map((b) => b.branchName)
                               .toList(),
-                          onChanged: (v) {
-                            setState(() {
-                              _branch = v;
-                              _hostel = _floor = _room = null;
-                            });
+                          onTap: () {
+                            if (branchCtrl.branches.isEmpty) return;
+                            showSelectionBottomSheet(
+                              context: context,
+                              title: "Select Branch",
+                              items: branchCtrl.branches
+                                  .map(
+                                    (b) => {
+                                      "id": b.id,
+                                      "name": b.branchName,
+                                      "object": b,
+                                    },
+                                  )
+                                  .toList(),
+                              labelKey: "name",
+                              onSelect: (item) {
+                                setState(() {
+                                  _branch = item["name"];
+                                  _hostel = _floor = _room = null;
+                                });
 
-                            final branchObj = branchCtrl.branches.firstWhere(
-                              (b) => b.branchName == v,
+                                final branchObj = item["object"];
+                                hostelCtrl.loadHostelsByBranch(branchObj.id);
+                              },
                             );
-                            hostelCtrl.loadHostelsByBranch(branchObj.id);
                           },
                         ),
                 ),
@@ -151,17 +167,32 @@ class _HostelAttendanceFilterPageState
                           items: hostelCtrl.hostels
                               .map((h) => h.buildingName)
                               .toList(),
-                          onChanged: (v) {
-                            setState(() {
-                              _hostel = v;
-                              _floor = _room = null;
-                            });
+                          onTap: () {
+                            if (hostelCtrl.hostels.isEmpty) return;
+                            showSelectionBottomSheet(
+                              context: context,
+                              title: "Select Hostel",
+                              items: hostelCtrl.hostels
+                                  .map(
+                                    (h) => {
+                                      "id": h.id,
+                                      "name": h.buildingName,
+                                      "object": h,
+                                    },
+                                  )
+                                  .toList(),
+                              labelKey: "name",
+                              onSelect: (item) {
+                                setState(() {
+                                  _hostel = item["name"];
+                                  _floor = _room = null;
+                                });
 
-                            final h = hostelCtrl.hostels.firstWhere(
-                              (h) => h.buildingName == v,
+                                final h = item["object"];
+                                hostelCtrl.selectedHostel.value = h;
+                                hostelCtrl.loadFloorsAndRooms(h.id);
+                              },
                             );
-                            hostelCtrl.selectedHostel.value = h;
-                            hostelCtrl.loadFloorsAndRooms(h.id);
                           },
                         ),
                 ),
@@ -178,14 +209,23 @@ class _HostelAttendanceFilterPageState
                           iconColor: Colors.blueAccent,
                           value: _floor,
                           items: hostelCtrl.floors,
-                          onChanged: (v) {
-                            setState(() {
-                              _floor = v;
-                              _room = null;
-                            });
-                            if (v != null) {
-                              hostelCtrl.filterRoomsByFloor(v);
-                            }
+                          onTap: () {
+                            if (hostelCtrl.floors.isEmpty) return;
+                            showSelectionBottomSheet(
+                              context: context,
+                              title: "Select Floor",
+                              items: hostelCtrl.floors
+                                  .map((f) => {"name": f})
+                                  .toList(),
+                              labelKey: "name",
+                              onSelect: (item) {
+                                setState(() {
+                                  _floor = item["name"];
+                                  _room = null;
+                                });
+                                hostelCtrl.filterRoomsByFloor(item["name"]);
+                              },
+                            );
                           },
                         ),
                 ),
@@ -202,7 +242,20 @@ class _HostelAttendanceFilterPageState
                           iconColor: Colors.pinkAccent,
                           value: _room,
                           items: hostelCtrl.rooms,
-                          onChanged: (v) => setState(() => _room = v),
+                          onTap: () {
+                            if (hostelCtrl.rooms.isEmpty) return;
+                            showSelectionBottomSheet(
+                              context: context,
+                              title: "Select Room",
+                              items: hostelCtrl.rooms
+                                  .map((r) => {"name": r})
+                                  .toList(),
+                              labelKey: "name",
+                              onSelect: (item) {
+                                setState(() => _room = item["name"]);
+                              },
+                            );
+                          },
                         ),
                 ),
                 const SizedBox(height: 14),
@@ -428,7 +481,7 @@ class _HostelAttendanceFilterPageState
     );
   }
 
-  // ---------------- DROPDOWN ----------------
+  // ---------------- DROPDOWN (BOTTOM SHEET) ----------------
   Widget _neonDropdown(
     BuildContext context, {
     required String label,
@@ -436,45 +489,48 @@ class _HostelAttendanceFilterPageState
     required Color iconColor,
     required String? value,
     required List<String> items,
-    required void Function(String?) onChanged,
+    required VoidCallback onTap,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withOpacity(0.08)
-            : Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isDark ? Colors.white24 : Theme.of(context).dividerColor,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: iconColor),
-          const SizedBox(width: 12),
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              value: (value != null && items.contains(value)) ? value : null,
-              dropdownColor: isDark ? dark2 : Theme.of(context).cardColor,
-              style: TextStyle(color: isDark ? Colors.white : Colors.black),
-              iconEnabledColor: neon,
-              decoration: InputDecoration(
-                labelText: label,
-                labelStyle: TextStyle(
-                  color: isDark ? Colors.white70 : Colors.black54,
-                ),
-                border: InputBorder.none,
-              ),
-              items: items
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
-              onChanged: onChanged,
-            ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.white.withOpacity(0.08)
+              : Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isDark ? Colors.white24 : Theme.of(context).dividerColor,
           ),
-        ],
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: iconColor),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value ?? label,
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black,
+                      fontSize: 16,
+                      fontWeight: value != null
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: isDark ? neon : Colors.black54),
+          ],
+        ),
       ),
     );
   }

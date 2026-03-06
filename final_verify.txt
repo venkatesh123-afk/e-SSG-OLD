@@ -1,0 +1,9 @@
+Analyzing pro_dashboard_page.dart...                            
+
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\staff_app\pages\pro_dashboard_page.dart:307:63 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\staff_app\pages\pro_dashboard_page.dart:391:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\staff_app\pages\pro_dashboard_page.dart:558:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\staff_app\pages\pro_dashboard_page.dart:725:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\staff_app\pages\pro_dashboard_page.dart:799:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\staff_app\pages\pro_dashboard_page.dart:838:41 - deprecated_member_use
+

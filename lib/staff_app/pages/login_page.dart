@@ -19,10 +19,8 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
 
-    // ✅ Safely get or create AuthController
-    auth = Get.isRegistered<AuthController>()
-        ? Get.find<AuthController>()
-        : Get.put(AuthController());
+    // ✅ Safely get AuthController (registered in main.dart)
+    auth = Get.find<AuthController>();
 
     // ✅ Clear previous user input
     userCtrl.clear();
@@ -89,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(20),
                       child: Image.asset(
-                        "assets/ssjc.jpg",
+                        "assets/icon/SSG.jpeg",
                         height: 140,
                         width: 140,
                         fit: BoxFit.cover,
@@ -97,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 25),
                     const Text(
-                      "SSJC Login",
+                      "e-SSG",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 32,
@@ -140,12 +138,16 @@ class _LoginPageState extends State<LoginPage> {
                                   color: Colors.black,
                                 ),
                                 border: InputBorder.none,
-                                labelText: "Username",
-                                labelStyle: TextStyle(color: Colors.black54),
-                                floatingLabelStyle: TextStyle(
-                                  color: Colors.black,
+                                labelText: " Enter Your User ID",
+                                labelStyle: const TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: 13,
                                 ),
-                                hintStyle: TextStyle(color: Colors.black45),
+                                hintText: "Enter ID",
+                                hintStyle: const TextStyle(
+                                  color: Colors.black45,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ),
@@ -251,7 +253,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 25),
-                    const Text("@ SSJC", style: TextStyle(color: Colors.white)),
+                    const Text(
+                      "@ e-SSG",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
               ),

@@ -8,6 +8,8 @@ class ApiCollection {
         "&password=${Uri.encodeQueryComponent(password)}";
   }
 
+  static const String studentLogin = "/student_login";
+
   // ================= COMMON =================
   static const String branchList = "/branchlist";
   static String groupsByBranch(int branchId) => "/groupslistbybranch/$branchId";
@@ -255,4 +257,10 @@ class ApiCollection {
 
   static String getStudentsByFloor(int floorId) =>
       "/getstudentsbyfloor/$floorId";
+
+  // ================= PRO DASHBOARD =================
+  static const String proDashboardData = "/get_pro_dashboard_data";
+  static const String proMomData = "/pro_mom_data";
+  static const String proYoyData = "/pro_yoy_data";
+  static const String proAdmissionsChart = "/pro_admissions_chart";
 }

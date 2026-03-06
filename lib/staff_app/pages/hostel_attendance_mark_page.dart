@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/hostel_controller.dart';
 import 'hostel_attendance_grid_page.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/success_dialog.dart';
 
 class HostelAttendanceMarkPage extends StatefulWidget {
   const HostelAttendanceMarkPage({super.key});
@@ -77,7 +78,9 @@ class _HostelAttendanceMarkPageState extends State<HostelAttendanceMarkPage> {
             Icons.arrow_back,
             color: isDark ? Colors.white : Colors.black,
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Get.until(
+            (route) => route.settings.name == '/hostelAttendanceFilter',
+          ),
         ),
       ),
       body: Container(
@@ -345,23 +348,41 @@ class _HostelAttendanceMarkPageState extends State<HostelAttendanceMarkPage> {
     );
 
     if (success) {
-      Get.snackbar(
-        'Success',
-        'Attendance submitted successfully',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+      final int total = hostelCtrl.roomStudents.length;
+      final int present = _statuses.values.where((s) => s == 'P').length;
 
-      // Refresh summary
-      await hostelCtrl.loadRoomAttendanceSummary(
-        branch: branchId,
-        date: DateTime.now().toIso8601String().split('T')[0],
-        hostel: hostelId,
-        floor: hostelCtrl.activeFloor.value,
-        room: 'All',
-      );
+      final Map<String, int> extraStats = {
+        'Missing': _statuses.values.where((s) => s == 'A').length,
+        'Outing': _statuses.values.where((s) => s == 'O').length,
+        'Home Pass': _statuses.values.where((s) => s == 'H').length,
+        'Self Outing': _statuses.values.where((s) => s == 'SO').length,
+        'Self Home': _statuses.values.where((s) => s == 'SH').length,
+      };
 
-      Get.back();
+      Get.dialog(
+        SuccessDialog(
+          title: "Success",
+          message: "Attendance has been submitted successfully!",
+          total: total,
+          present: present,
+          extraStats: extraStats,
+          onConfirm: () {
+            // Close only the success dialog
+            Get.back();
+
+            // Refresh summary for the whole floor to reflect the newly marked attendance
+            // We use the floor name (args['floor_name']) for the summary API
+            hostelCtrl.loadRoomAttendanceSummary(
+              branch: branchId,
+              date: args['date'] ?? hostelCtrl.activeDate.value,
+              hostel: hostelId,
+              floor: args['floor_name'] ?? hostelCtrl.activeFloor.value,
+              room: 'All',
+            );
+          },
+        ),
+        barrierDismissible: false,
+      );
     }
   }
 

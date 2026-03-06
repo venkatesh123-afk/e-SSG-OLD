@@ -8,6 +8,10 @@ import '../model/non_hostel_student_model.dart';
 import '../model/hostel_student_model.dart';
 import '../model/room_attendance_model.dart';
 import '../model/hostel_grid_model.dart';
+import '../model/pro_dashboard_model.dart';
+import '../model/pro_mom_model.dart';
+import '../model/pro_yoy_model.dart';
+import '../model/pro_admissions_chart_model.dart';
 import '../utils/get_storage.dart';
 
 class ApiService {
@@ -115,6 +119,60 @@ class ApiService {
       }
       // Otherwise wrap it
       throw Exception(e.toString());
+    }
+  }
+
+  static Future<Map<String, dynamic>> studentLogin({
+    required String mobile,
+    required String password,
+  }) async {
+    final Uri url = Uri.parse(
+      ApiCollection.baseUrl + ApiCollection.studentLogin,
+    );
+
+    try {
+      _box.remove("token");
+      _box.remove("user_id");
+
+      final response = await http
+          .post(
+            url,
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json",
+            },
+            body: jsonEncode({"mobile": mobile, "password": password}),
+          )
+          .timeout(const Duration(seconds: 20));
+
+      if (response.statusCode != 200) {
+        throw Exception("Server error: ${response.statusCode}");
+      }
+
+      Map<String, dynamic> data =
+          jsonDecode(response.body) as Map<String, dynamic>;
+      debugPrint("STUDENT LOGIN API RESPONSE: ${response.body}");
+
+      final isSuccess =
+          data["success"] == true ||
+          data["success"] == "true" ||
+          data["success"] == 1;
+
+      if (isSuccess && data["data"] != null && data["data"]["token"] != null) {
+        final studentData = data["data"];
+        AppStorage.saveToken(studentData["token"]);
+        AppStorage.saveUserId(studentData["sid"]);
+        AppStorage.saveLoginType("student");
+
+        return data;
+      }
+
+      final errorMessage =
+          data["message"] ?? data["error"] ?? "Invalid credentials";
+      throw Exception(errorMessage);
+    } catch (e) {
+      debugPrint("STUDENT LOGIN ERROR: $e");
+      rethrow;
     }
   }
 
@@ -1253,5 +1311,66 @@ class ApiService {
     }
 
     return [];
+  }
+
+  // ================= PRO DASHBOARD DATA =================
+  static Future<ProDashboardModel> getProDashboardData() async {
+    final res = await getRequest(ApiCollection.proDashboardData);
+
+    debugPrint("PRO DASHBOARD DATA RESPONSE: $res");
+
+    if ((res["success"] == true ||
+            res["success"] == "true" ||
+            res["success"] == 1) &&
+        res["infodata"] != null) {
+      return ProDashboardModel.fromJson(res["infodata"]);
+    }
+
+    throw Exception("Failed to load pro dashboard data");
+  }
+
+  // ================= PRO MOM DATA =================
+  static Future<ProMomModel> getProMomData() async {
+    final res = await getRequest(ApiCollection.proMomData);
+
+    debugPrint("PRO MOM DATA RESPONSE: $res");
+
+    if (res["success"] == true ||
+        res["success"] == "true" ||
+        res["success"] == 1) {
+      return ProMomModel.fromJson(res);
+    }
+
+    throw Exception("Failed to load pro month-on-month data");
+  }
+
+  // ================= PRO YOY DATA =================
+  static Future<ProYoyModel> getProYoyData() async {
+    final res = await getRequest(ApiCollection.proYoyData);
+
+    debugPrint("PRO YOY DATA RESPONSE: $res");
+
+    if (res["success"] == true ||
+        res["success"] == "true" ||
+        res["success"] == 1) {
+      return ProYoyModel.fromJson(res);
+    }
+
+    throw Exception("Failed to load pro year-on-year data");
+  }
+
+  // ================= PRO ADMISSIONS CHART DATA =================
+  static Future<ProAdmissionsChartModel> getProAdmissionsChart() async {
+    final res = await getRequest(ApiCollection.proAdmissionsChart);
+
+    debugPrint("PRO ADMISSIONS CHART RESPONSE: $res");
+
+    if (res["success"] == true ||
+        res["success"] == "true" ||
+        res["success"] == 1) {
+      return ProAdmissionsChartModel.fromJson(res);
+    }
+
+    throw Exception("Failed to load pro admissions chart data");
   }
 }

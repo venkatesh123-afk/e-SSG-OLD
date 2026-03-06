@@ -43,6 +43,7 @@
 //     }
 //   }
 // }
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../api/api_collection.dart';
 import '../api/api_service.dart';
@@ -59,7 +60,55 @@ class ProfileController extends GetxController {
     super.onInit();
     // Get current user ID from storage
     _currentUserId = AppStorage.getUserId();
+
+    // 🔥 LOAD CACHED PROFILE IMMEDIATELY (UX IMPROVEMENT)
+    _loadFromCache();
+
     fetchProfile();
+  }
+
+  void _loadFromCache() {
+    final savedUsers = AppStorage.getSavedUsers();
+    if (_currentUserId != null && savedUsers.isNotEmpty) {
+      final user = savedUsers.firstWhere(
+        (u) => u['userid'] == _currentUserId,
+        orElse: () => {},
+      );
+
+      if (user.isNotEmpty) {
+        // Create a temporary profile model from cache
+        profile.value = ProfileModel(
+          name: user['name'] ?? '',
+          avatar: user['avatar'] ?? '',
+          email: user['email'] ?? '',
+          userLogin: user['user_login'] ?? '',
+          // Fill other required fields with defaults
+          father: '',
+          gender: '',
+          dob: '',
+          doj: '',
+          jobType: '',
+          shift: '',
+          designation: user['role'] ?? '',
+          department: '',
+          mobile: user['mobile'] ?? '',
+          nationality: '',
+          marital: '',
+          religion: '',
+          community: '',
+          cAddress: '',
+          pAddress: '',
+          pan: '',
+          aadhar: '',
+          bankAcc: '',
+          bank: '',
+          ifsc: '',
+          roleId: 0,
+          status: 1,
+        );
+        // Note: We keep isLoading true while fresh data is being fetched
+      }
+    }
   }
 
   Future<void> fetchProfile() async {
@@ -72,9 +121,11 @@ class ProfileController extends GetxController {
         // User changed - clear old profile data
         profile.value = null;
         _currentUserId = storedUserId;
+        _loadFromCache(); // Try loading new user's cache
       } else if (_currentUserId == null && storedUserId != null) {
         // First time loading or user ID was set
         _currentUserId = storedUserId;
+        _loadFromCache();
       }
 
       final response = await ApiService.getRequest(ApiCollection.myProfile);
@@ -85,7 +136,9 @@ class ProfileController extends GetxController {
         final success =
             response['success'] == true || response['success'] == "true";
         if (!success) {
-          Get.snackbar("Error", "Profile fetch failed");
+          if (profile.value == null) {
+            Get.snackbar("Error", "Profile fetch failed");
+          }
           return;
         }
         // If success field exists, data might be in 'data' field or response itself
@@ -121,7 +174,11 @@ class ProfileController extends GetxController {
         }
       }
     } catch (e) {
-      Get.snackbar("Error", "Profile fetch failed: ${e.toString()}");
+      debugPrint("PROFILE FETCH ERROR: $e");
+      // Don't show snackbar if we already have cached data
+      if (profile.value == null) {
+        Get.snackbar("Error", "Profile fetch failed: ${e.toString()}");
+      }
     } finally {
       isLoading.value = false;
     }
@@ -131,6 +188,7 @@ class ProfileController extends GetxController {
   void refreshProfile() {
     _currentUserId = AppStorage.getUserId();
     profile.value = null;
+    _loadFromCache();
     fetchProfile();
   }
 

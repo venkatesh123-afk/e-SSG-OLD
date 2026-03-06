@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:student_app/student_app/dashboard_page.dart';
+import 'package:get/get.dart';
+import 'package:student_app/staff_app/controllers/auth_controller.dart';
 import 'package:student_app/student_app/profile_page.dart';
-import 'package:student_app/student_app/services/session_service.dart';
+
 import 'package:student_app/student_app/services/student_profile_service.dart';
 import 'package:student_app/student_app/studentdrawer.dart';
 import 'package:student_app/theme_controllers.dart';
@@ -208,15 +209,10 @@ class StudentAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 );
               } else if (value == 'logout') {
-                SessionService.logout().then((_) {
-                  if (context.mounted) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => const DashboardPage()),
-                      (route) => false,
-                    );
-                  }
-                });
+                final authController = Get.isRegistered<AuthController>()
+                    ? Get.find<AuthController>()
+                    : Get.put(AuthController());
+                authController.logout();
               }
             },
           ),

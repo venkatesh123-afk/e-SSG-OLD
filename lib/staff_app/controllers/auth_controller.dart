@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:student_app/staff_app/utils/get_storage.dart';
+import 'package:student_app/student_app/services/student_profile_service.dart';
 import '../api/api_service.dart';
 import 'profile_controller.dart';
 
@@ -12,11 +14,26 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
-      // ✅ CALL DEDICATED LOGIN API (MATCHES POSTMAN)
-      final response = await ApiService.login(
-        username: username,
-        password: password,
-      );
+      final dynamic response;
+      final String loginType;
+
+      if (username.length == 6) {
+        loginType = "staff";
+        response = await ApiService.login(
+          username: username,
+          password: password,
+        );
+      } else if (username.length == 10) {
+        loginType = "student";
+        response = await ApiService.studentLogin(
+          mobile: username,
+          password: password,
+        );
+      } else {
+        throw Exception(
+          "Invalid username length. Use 6 digits for staff or 10 digits for student.",
+        );
+      }
 
       // ✅ SUCCESS CHECK - Handle different success formats
       final isSuccess =
@@ -24,39 +41,60 @@ class AuthController extends GetxController {
           response["success"] == "true" ||
           response["success"] == 1;
 
-      if (isSuccess && response["access_token"] != null) {
+      final token =
+          response["access_token"] ??
+          (response["data"] != null ? response["data"]["token"] : null);
+      final userId =
+          response["userid"] ??
+          (response["data"] != null ? response["data"]["sid"] : null);
+
+      if (isSuccess && token != null) {
         // 🔥 CLEAR PREVIOUS USER'S PROFILE DATA (MULTI-USER SUPPORT)
         _clearProfileController();
 
-        // 🔐 SAVE SESSION
-        AppStorage.saveToken(response["access_token"]);
-        AppStorage.saveUserId(response["userid"]);
+        // 🔐 SAVE SESSION (Staff App Storage - GetStorage)
+        AppStorage.saveToken(token);
+        AppStorage.saveUserId(
+          userId is int ? userId : int.tryParse(userId.toString()) ?? 0,
+        );
         AppStorage.setLoggedIn(true);
+        AppStorage.saveLoginType(response["login_type"] ?? loginType);
 
         // 🔥 SAVE MULTI-USER SESSION
         AppStorage.saveUserSession({
           'user_login': username,
-          'userid': response['userid'],
-          'login_type': response['login_type'],
-          'role': response['role'],
-          'permissions': response['permissions'],
-          // We don't have name/avatar yet, ProfileController will fetch them later
-        }, response["access_token"]);
+          'userid': userId,
+          'login_type': response['login_type'] ?? loginType,
+          'role': response['role'] ?? (loginType == 'student' ? 'Student' : ''),
+          'permissions': response['permissions'] ?? [],
+        }, token);
 
-        // 🔥 FETCH PROFILE IMMEDIATELY AFTER LOGIN
-        // This ensures Dashboard/Drawer have user data right away
-        final profileController = Get.isRegistered<ProfileController>()
-            ? Get.find<ProfileController>()
-            : Get.put(ProfileController());
+        if (loginType == 'student') {
+          // 🎓 STUDENT-SPECIFIC STORAGE (SharedPreferences - to support student app services)
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString("access_token", token);
+          await prefs.setString("student_id", userId.toString());
 
-        // Use await to ensure profile is fetched before moving to dashboard
-        // If it fails, we still go to dashboard but user info might be missing
-        profileController.fetchProfile().catchError((e) {
-          debugPrint("PROFILE FETCH FAILED AFTER LOGIN: $e");
-        });
+          // 🎓 INITIALIZE STUDENT PROFILE
+          StudentProfileService.fetchAndSetProfileData().catchError((e) {
+            debugPrint("STUDENT PROFILE FETCH FAILED: $e");
+          });
 
-        // 🚀 GO TO DASHBOARD
-        Get.offAllNamed('/dashboard');
+          // 🚀 GO TO STUDENT DASHBOARD
+          Get.offAllNamed('/studentDashboard');
+        } else {
+          // 👨‍🏫 STAFF-SPECIFIC INITIALIZATION
+          final profileController = Get.isRegistered<ProfileController>()
+              ? Get.find<ProfileController>()
+              : Get.put(ProfileController());
+
+          profileController.fetchProfile().catchError((e) {
+            debugPrint("PROFILE FETCH FAILED AFTER LOGIN: $e");
+          });
+
+          // 🚀 GO TO STAFF DASHBOARD
+          Get.offAllNamed('/dashboard');
+        }
       } else {
         // Extract error message
         final errorMsg =
@@ -92,8 +130,6 @@ class AuthController extends GetxController {
       } else if (errorString.contains("Server error")) {
         errorMessage = "Server error: Please try again later";
       } else {
-        // Try to extract the actual error message from the exception
-        // Remove "Exception: " prefix if present
         errorMessage = errorString.replaceFirst("Exception: ", "").trim();
         if (errorMessage.isEmpty) {
           errorMessage = "Login failed: Please try again";
@@ -116,24 +152,29 @@ class AuthController extends GetxController {
   void _clearProfileController() {
     if (Get.isRegistered<ProfileController>()) {
       final profileController = Get.find<ProfileController>();
-      // Clear profile data
       profileController.profile.value = null;
       profileController.isLoading.value = true;
     }
   }
 
   // ================= LOGOUT =================
-  void logout() {
-    // 🚀 1. Clear Session
+  Future<void> logout() async {
+    // 🚀 1. Clear Staff Storage
     AppStorage.clear();
 
-    // 🧹 2. Clear related controllers
+    // 🚀 2. Clear Student Storage
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    // 🚀 3. Reset Student Services
+    StudentProfileService.resetProfileData();
+
+    // 🧹 4. Clear related controllers
     if (Get.isRegistered<ProfileController>()) {
       Get.delete<ProfileController>(force: true);
     }
 
-    // 🚪 3. BACK TO ROLE SELECTION (HOME)
-    // Using named route /home for clarity
-    Get.offAllNamed('/home');
+    // 🚪 5. BACK TO LOGIN
+    Get.offAllNamed('/login');
   }
 }
