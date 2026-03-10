@@ -1,52 +1,3 @@
-// import 'package:get/get.dart';
-// import '../api/api_service.dart';
-// import '../api/api_collection.dart';
-// import '../model/fee_head_model.dart';
-
-// class FeeController extends GetxController {
-//   /// Loading indicator
-//   final RxBool isLoading = false.obs;
-
-//   /// Fee head list
-//   final RxList<FeeHeadModel> feeHeads = <FeeHeadModel>[].obs;
-
-//   /// Load fee heads by branch
-//   Future<void> loadFeeHeads(int branchId) async {
-//     try {
-//       isLoading.value = true;
-
-//       final data = await ApiService.getRequest(
-//         ApiCollection.feeHeadsByBranch(branchId),
-//       );
-
-//       /// Handle both bool and string success
-//       final bool success = data['success'] == true || data['success'] == "true";
-
-//       if (success && data['indexdata'] != null) {
-//         final List list = data['indexdata'];
-
-//         feeHeads.value = list
-//             .map((e) => FeeHeadModel.fromJson(e))
-//             .where((f) => f.status == 1) // active only
-//             .toList();
-//       } else {
-//         feeHeads.clear();
-//         Get.snackbar("Info", "No fee heads found");
-//       }
-//     } catch (e) {
-//       feeHeads.clear();
-//       Get.snackbar("Error", "Failed to load fee heads");
-//     } finally {
-//       isLoading.value = false;
-//     }
-//   }
-
-//   /// Clear fee head list
-//   void clear() {
-//     feeHeads.clear();
-//   }
-// }
-
 import 'package:get/get.dart';
 import '../api/api_service.dart';
 import '../api/api_collection.dart';
@@ -107,9 +58,7 @@ class FeeController extends GetxController {
       feeHeads.value = List.from(allFeeHeads);
     } else {
       feeHeads.value = allFeeHeads
-          .where(
-            (f) => f.feeHead.toLowerCase().contains(query.toLowerCase()),
-          )
+          .where((f) => f.feeHead.toLowerCase().contains(query.toLowerCase()))
           .toList();
     }
   }
